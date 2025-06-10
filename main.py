@@ -45,7 +45,12 @@ async def predict_next_day(input_data: PredictionInput):
         fecha = input_dict.pop('fecha')
         
         # Calcular características temporales
-        fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+        # fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+        if isinstance(fecha, str):
+            fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
+        else:
+        # fecha ya es datetime.date
+            fecha_dt = datetime.combine(fecha, datetime.min.time())
         dia_año = fecha_dt.timetuple().tm_yday
         mes = fecha_dt.month
         dia_semana = fecha_dt.weekday()
