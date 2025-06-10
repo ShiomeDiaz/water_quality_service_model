@@ -4,9 +4,8 @@ from pydantic import BaseModel
 import joblib
 import pandas as pd
 import numpy as np
-from typing import Dict, Any
-from datetime import datetime
-from datetime import date  # ¡Faltaba esta importación!
+from datetime import datetime, date
+from typing import List
 
 app = FastAPI(title="API de Predicción de Calidad del Agua")
 
@@ -24,6 +23,7 @@ except Exception as e:
 class PredictionInput(BaseModel):
     Location_ID: int
     fecha: date
+    features_0_to_10: List[float]  # [0.93, 0.38, ..., 0.38] (11 valores)
     pH: float
     E_coli: float
     Coliformes_totales: float
@@ -33,53 +33,55 @@ class PredictionInput(BaseModel):
     DBO5: float
     Solidos_suspendidos: float
 
-# Endpoint 1: Predicción de ICA
-@app.post("/predict-next-day", summary="Predice el ICA para el día siguiente")
+# Endpoint de predicción
+@app.post("/predict-next-day")
 async def predict_next_day(input_data: PredictionInput):
     if model is None:
         raise HTTPException(status_code=500, detail="Modelo no cargado")
     
     try:
-        # Crear DataFrame con datos de entrada
-        input_dict = input_data.dict()
-        fecha = input_dict.pop('fecha')
+        # Convertir fecha a características temporales
+        fecha_dt = datetime.combine(input_data.fecha, datetime.min.time())
         
-        # Calcular características temporales
-        # fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
-        if isinstance(fecha, str):
-            fecha_dt = datetime.strptime(fecha, "%Y-%m-%d")
-        else:
-        # fecha ya es datetime.date
-            fecha_dt = datetime.combine(fecha, datetime.min.time())
-        dia_año = fecha_dt.timetuple().tm_yday
-        mes = fecha_dt.month
-        dia_semana = fecha_dt.weekday()
-        
+        # Crear diccionario con todas las características
         features = {
-            **input_dict,
-            'dia_año': dia_año,
-            'mes': mes,
-            'dia_semana': dia_semana
+            "Location_ID": input_data.Location_ID,
+            "dia_año": fecha_dt.timetuple().tm_yday,
+            "mes": fecha_dt.month,
+            "dia_semana": fecha_dt.weekday(),
+            **{str(i): val for i, val in enumerate(input_data.features_0_to_10)},
+            "pH": input_data.pH,
+            "E_coli": input_data.E_coli,
+            "Coliformes_totales": input_data.Coliformes_totales,
+            "Turbidez": input_data.Turbidez,
+            "Nitratos": input_data.Nitratos,
+            "Fosfatos": input_data.Fosfatos,
+            "DBO5": input_data.DBO5,
+            "Solidos_suspendidos": input_data.Solidos_suspendidos
         }
         
-        # Crear dataframe para predicción
+        # Crear DataFrame para predicción
         prediction_df = pd.DataFrame([features])
+        
+        # Reordenar columnas como el modelo espera
+        column_order = ['Location_ID', 'dia_año', 'mes', 'dia_semana', 
+                        '0','1','2','3','4','5','6','7','8','9','10',
+                        'pH','E_coli','Coliformes_totales','Turbidez',
+                        'Nitratos','Fosfatos','DBO5','Solidos_suspendidos']
+        prediction_df = prediction_df[column_order]
         
         # Realizar predicción
         prediction = model.predict(prediction_df)
         
         return {
             "location_id": input_data.Location_ID,
-            "fecha_prediccion": fecha,
+            "fecha_prediccion": input_data.fecha.isoformat(),
             "ica_predicho": round(float(prediction[0]), 2)
         }
     
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error en predicción: {str(e)}")
 
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=3035)
-# To run the API, use the command:
-# uvicorn apiModel:app --reload

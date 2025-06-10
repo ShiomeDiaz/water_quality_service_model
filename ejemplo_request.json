@@ -1,12 +1,15 @@
 {
-  "Location_ID": 2336240,
-  "fecha": "2025-06-10",
-  "pH": 0.3790424722765272,
-  "E_coli": 170.94825859736358,
-  "Coliformes_totales": 452.7410811986533,
-  "Turbidez": 2.3158245807864213,
-  "Nitratos": 0.7190337917458149,
-  "Fosfatos": 0.1531624166704012,
-  "DBO5": 3.82357352275224,
-  "Solidos_suspendidos": 13.237443814510591
+  "Location_ID": 2198840,
+  "fecha": "2025-06-11",
+  "features_0_to_10": [
+    0.93, 0.38, 0.58, 0.16, 0.93, 0.15, 0.77, 0.64, 0.34, 0.35, 0.38
+  ],
+  "pH": 7.2,
+  "E_coli": 150.0,
+  "Coliformes_totales": 300.0,
+  "Turbidez": 2.5,
+  "Nitratos": 0.8,
+  "Fosfatos": 0.15,
+  "DBO5": 3.2,
+  "Solidos_suspendidos": 25.0
 }
