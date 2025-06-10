@@ -185,6 +185,37 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+# Entorno virtual
+venv/
+
+# Modelos y resultados
+*.pkl
+*.csv
+*.png
+
+# Python cache
+__pycache__/
+*.pyc
+# Entorno virtual
+venv/
+ENV/
+env/
+.venv/
+
+# Archivos de modelo y resultados
+*.pkl
+*.csv
+*.png
+
+# Archivos temporales y de caché
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración de IDE
+*.idea/
+*.vscode/
 
 # Cursor
 #  Cursor is an AI-powered code editor. `.cursorignore` specifies files/directories to
