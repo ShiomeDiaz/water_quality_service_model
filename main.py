@@ -6,6 +6,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, date
 from typing import List
+from datetime import timedelta
 
 app = FastAPI(title="API de Predicción de Calidad del Agua")
 
@@ -72,10 +73,12 @@ async def predict_next_day(input_data: PredictionInput):
         
         # Realizar predicción
         prediction = model.predict(prediction_df)
+        # Dentro del endpoint, después de obtener la fecha:
+        fecha_prediccion = input_data.fecha + timedelta(days=1)
         
         return {
             "location_id": input_data.Location_ID,
-            "fecha_prediccion": input_data.fecha.isoformat(),
+            "fecha_prediccion": fecha_prediccion.isoformat(),
             "ica_predicho": round(float(prediction[0]), 2)
         }
     
